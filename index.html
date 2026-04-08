@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UdaPlay - AI Game Research Agent Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --accent: #6c63ff;
+    --accent2: #00c9a7;
+    --accent3: #ff6b6b;
+    --accent4: #ffc107;
+    --text: #e4e6eb;
+    --text2: #9ca3af;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #252838 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .header h1 { font-size: 26px; font-weight: 700; }
+  .header p { color: var(--text2); font-size: 14px; margin-top: 2px; }
+  .container { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .num {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-card .label { color: var(--text2); font-size: 13px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Section titles */
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Charts grid */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .chart-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text2);
+  }
+  .chart-container { position: relative; height: 260px; }
+
+  /* Agent workflow */
+  .workflow-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 28px;
+  }
+  .workflow-pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .wf-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 140px;
+  }
+  .wf-box {
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 130px;
+    position: relative;
+  }
+  .wf-box.entry { background: linear-gradient(135deg, #1e3a5f, #2563eb); border: 1px solid #3b82f6; }
+  .wf-box.tool { background: linear-gradient(135deg, #1a3d2e, #059669); border: 1px solid #10b981; }
+  .wf-box.eval { background: linear-gradient(135deg, #3d2e1a, #d97706); border: 1px solid #f59e0b; }
+  .wf-box.web { background: linear-gradient(135deg, #3d1a2e, #dc2626); border: 1px solid #ef4444; }
+  .wf-box.end { background: linear-gradient(135deg, #2e1a3d, #7c3aed); border: 1px solid #8b5cf6; }
+  .wf-label { font-size: 11px; color: var(--text2); }
+  .wf-arrow {
+    font-size: 22px;
+    color: var(--text2);
+    margin: 0 6px;
+    flex-shrink: 0;
+  }
+  .wf-branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 0 6px;
+  }
+  .wf-branch-label {
+    font-size: 11px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  .wf-branch-label.no { color: var(--accent3); }
+
+  /* Game table */
+  .table-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    color: var(--text2);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #1f2230;
+  }
+  tr:hover td { background: rgba(108, 99, 255, 0.05); }
+  .genre-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* Sim section */
+  .sim-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 28px;
+  }
+  .sim-input-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .sim-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+  }
+  .sim-input:focus { border-color: var(--accent); }
+  .sim-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--accent), #5548d9);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .sim-btn:hover { transform: translateY(-1px); }
+  .sim-btn:active { transform: translateY(0); }
+  .sim-log {
+    margin-top: 20px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 120px;
+    max-height: 340px;
+    overflow-y: auto;
+    display: none;
+  }
+  .log-entry { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .log-step { color: var(--accent); font-weight: 600; min-width: 24px; }
+  .log-icon { font-size: 14px; min-width: 20px; text-align: center; }
+  .log-text { color: var(--text); }
+  .log-text.dim { color: var(--text2); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .log-entry { animation: fadeIn 0.3s ease; }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text2);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🎮</div>
+  <div>
+    <h1>UdaPlay Dashboard</h1>
+    <p>AI Game Research Agent — Knowledge Base & Retrieval Process Visualization</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="num">15</div>
+      <div class="label">Games in Knowledge Base</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">9</div>
+      <div class="label">Unique Genres</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">15</div>
+      <div class="label">Platforms Covered</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">3</div>
+      <div class="label">Agent Tools</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="section-title"><span class="dot"></span> Knowledge Base Analytics</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Genre Distribution</h3>
+      <div class="chart-container"><canvas id="genreChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Platform Family Distribution</h3>
+      <div class="chart-container"><canvas id="platformChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Games by Release Year</h3>
+      <div class="chart-container"><canvas id="yearChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Publisher Share</h3>
+      <div class="chart-container"><canvas id="publisherChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Agent Workflow -->
+  <div class="section-title"><span class="dot" style="background:var(--accent2)"></span> Agent Retrieval Workflow</div>
+  <div class="workflow-section">
+    <div class="workflow-pipeline">
+      <div class="wf-step">
+        <div class="wf-box entry">📥 User Query</div>
+        <div class="wf-label">EntryPoint</div>
+      </div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-step">
+        <div class="wf-box tool">🔍 retrieve_game</div>
+        <div class="wf-label">ChromaDB Search</div>
+      </div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-step">
+        <div class="wf-box eval">⚖️ evaluate_retrieval</div>
+        <div class="wf-label">LLM-as-Judge</div>
+      </div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-branch">
+        <div>
+          <div class="wf-branch-label">✓ Useful</div>
+          <div class="wf-arrow" style="margin:0">↘</div>
+        </div>
+        <div>
+          <div class="wf-branch-label no">✗ Not Useful</div>
+          <div class="wf-arrow" style="margin:0">↗</div>
+        </div>
+      </div>
+      <div class="wf-arrow"></div>
+      <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+        <div class="wf-step">
+          <div class="wf-box end">💬 Answer</div>
+          <div class="wf-label">From Vector DB</div>
+        </div>
+        <div class="wf-step">
+          <div class="wf-box web">🌐 game_web_search</div>
+          <div class="wf-label">Tavily Fallback</div>
+        </div>
+      </div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-step">
+        <div class="wf-box end">✅ Final Response</div>
+        <div class="wf-label">Termination</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Retrieval Simulation -->
+  <div class="section-title"><span class="dot" style="background:var(--accent4)"></span> Retrieval Process Simulator</div>
+  <div class="sim-section">
+    <p style="color:var(--text2);font-size:14px;margin-bottom:4px;">Simulate how the agent processes a query through the RAG pipeline.</p>
+    <div class="sim-input-row">
+      <input class="sim-input" id="simQuery" placeholder="e.g. When was Pokémon Gold and Silver released?" value="When was Pokémon Gold and Silver released?" />
+      <button class="sim-btn" id="simBtn" onclick="runSimulation()">▶ Simulate</button>
+    </div>
+    <div class="sim-log" id="simLog"></div>
+  </div>
+
+  <!-- Knowledge Base Table -->
+  <div class="section-title"><span class="dot" style="background:var(--accent3)"></span> Knowledge Base Contents</div>
+  <div class="table-section">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Game</th><th>Platform</th><th>Year</th><th>Genre</th><th>Publisher</th></tr>
+      </thead>
+      <tbody id="gameTableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">UdaPlay — Udacity Agentic AI Nanodegree — Final Project Dashboard</div>
+
+<script>
+// ─── DATA ───
+const games = [
+  { name: "Gran Turismo", platform: "PlayStation 1", year: 1997, genre: "Racing", publisher: "Sony Computer Entertainment" },
+  { name: "Grand Theft Auto: San Andreas", platform: "PlayStation 2", year: 2004, genre: "Action-adventure", publisher: "Rockstar Games" },
+  { name: "Gran Turismo 5", platform: "PlayStation 3", year: 2010, genre: "Racing", publisher: "Sony Computer Entertainment" },
+  { name: "Marvel's Spider-Man", platform: "PlayStation 4", year: 2018, genre: "Action-adventure", publisher: "Sony Interactive Entertainment" },
+  { name: "Marvel's Spider-Man 2", platform: "PlayStation 5", year: 2023, genre: "Action-adventure", publisher: "Sony Interactive Entertainment" },
+  { name: "Pokémon Gold and Silver", platform: "Game Boy Color", year: 1999, genre: "Role-playing", publisher: "Nintendo" },
+  { name: "Pokémon Ruby and Sapphire", platform: "Game Boy Advance", year: 2002, genre: "Role-playing", publisher: "Nintendo" },
+  { name: "Super Mario World", platform: "SNES", year: 1990, genre: "Platformer", publisher: "Nintendo" },
+  { name: "Super Mario 64", platform: "Nintendo 64", year: 1996, genre: "Platformer", publisher: "Nintendo" },
+  { name: "Super Smash Bros. Melee", platform: "GameCube", year: 2001, genre: "Fighting", publisher: "Nintendo" },
+  { name: "Wii Sports", platform: "Wii", year: 2006, genre: "Sports", publisher: "Nintendo" },
+  { name: "Mario Kart 8 Deluxe", platform: "Nintendo Switch", year: 2017, genre: "Racing", publisher: "Nintendo" },
+  { name: "Kinect Adventures!", platform: "Xbox 360", year: 2010, genre: "Party", publisher: "Microsoft Game Studios" },
+  { name: "Minecraft", platform: "Xbox One", year: 2014, genre: "Sandbox, Survival", publisher: "Mojang Studios" },
+  { name: "Halo Infinite", platform: "Xbox Series X|S", year: 2021, genre: "FPS", publisher: "Xbox Game Studios" }
+];
+
+const genreColors = {
+  "Racing": "#6c63ff", "Action-adventure": "#ff6b6b", "Role-playing": "#00c9a7",
+  "Platformer": "#ffc107", "Fighting": "#ff9ff3", "Sports": "#54a0ff",
+  "Party": "#f368e0", "Sandbox, Survival": "#10ac84", "FPS": "#ee5a24"
+};
+
+// ─── CHARTS ───
+const chartDefaults = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#9ca3af', font: { size: 12 } } } },
+  scales: {
+    x: { ticks: { color: '#9ca3af' }, grid: { color: '#1f2230' } },
+    y: { ticks: { color: '#9ca3af' }, grid: { color: '#1f2230' } }
+  }
+};
+
+// Genre chart
+const genreCounts = {};
+games.forEach(g => { genreCounts[g.genre] = (genreCounts[g.genre] || 0) + 1; });
+new Chart(document.getElementById('genreChart'), {
+  type: 'doughnut',
+  data: {
+    labels: Object.keys(genreCounts),
+    datasets: [{ data: Object.values(genreCounts),
+      backgroundColor: Object.keys(genreCounts).map(g => genreColors[g] || '#555'),
+      borderWidth: 0 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 11 }, padding: 10 } } } }
+});
+
+// Platform family chart
+const families = {};
+games.forEach(g => {
+  let fam = 'Other';
+  if (g.platform.includes('PlayStation')) fam = 'PlayStation';
+  else if (g.platform.includes('Xbox') || g.platform.includes('Kinect')) fam = 'Xbox';
+  else if (['SNES','Nintendo 64','GameCube','Wii','Nintendo Switch','Game Boy Color','Game Boy Advance'].includes(g.platform)) fam = 'Nintendo';
+  families[fam] = (families[fam] || 0) + 1;
+});
+new Chart(document.getElementById('platformChart'), {
+  type: 'doughnut',
+  data: {
+    labels: Object.keys(families),
+    datasets: [{ data: Object.values(families),
+      backgroundColor: ['#6c63ff','#ff6b6b','#00c9a7','#ffc107'], borderWidth: 0 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 11 }, padding: 10 } } } }
+});
+
+// Year chart
+const yearData = {};
+games.forEach(g => { yearData[g.year] = (yearData[g.year] || 0) + 1; });
+const sortedYears = Object.keys(yearData).sort();
+new Chart(document.getElementById('yearChart'), {
+  type: 'bar',
+  data: {
+    labels: sortedYears,
+    datasets: [{ label: 'Games', data: sortedYears.map(y => yearData[y]),
+      backgroundColor: '#6c63ff', borderRadius: 6, barThickness: 24 }]
+  },
+  options: { ...chartDefaults,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#9ca3af', maxRotation: 45 }, grid: { display: false } },
+      y: { ticks: { color: '#9ca3af', stepSize: 1 }, grid: { color: '#1f2230' }, beginAtZero: true }
+    }
+  }
+});
+
+// Publisher chart
+const pubCounts = {};
+games.forEach(g => { pubCounts[g.publisher] = (pubCounts[g.publisher] || 0) + 1; });
+const pubSorted = Object.entries(pubCounts).sort((a,b) => b[1] - a[1]);
+new Chart(document.getElementById('publisherChart'), {
+  type: 'bar',
+  data: {
+    labels: pubSorted.map(p => p[0]),
+    datasets: [{ label: 'Games', data: pubSorted.map(p => p[1]),
+      backgroundColor: ['#00c9a7','#6c63ff','#6c63ff','#ff6b6b','#ffc107','#54a0ff','#f368e0'],
+      borderRadius: 6, barThickness: 22 }]
+  },
+  options: { ...chartDefaults, indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#9ca3af', stepSize: 1 }, grid: { color: '#1f2230' }, beginAtZero: true },
+      y: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+// ─── GAME TABLE ───
+const tbody = document.getElementById('gameTableBody');
+games.forEach((g, i) => {
+  const color = genreColors[g.genre] || '#555';
+  tbody.innerHTML += `<tr>
+    <td style="color:var(--text2)">${i+1}</td>
+    <td style="font-weight:600">${g.name}</td>
+    <td>${g.platform}</td>
+    <td>${g.year}</td>
+    <td><span class="genre-badge" style="background:${color}22;color:${color}">${g.genre}</span></td>
+    <td style="color:var(--text2)">${g.publisher}</td>
+  </tr>`;
+});
+
+// ─── SIMULATION ───
+const simScenarios = {
+  "pokemon": {
+    query: "Pokémon Gold and Silver",
+    dbResults: [
+      "Pokémon Gold and Silver (Game Boy Color, 1999) - Role-playing",
+      "Pokémon Ruby and Sapphire (Game Boy Advance, 2002) - Role-playing"
+    ],
+    evalResult: { useful: true, desc: "The retrieved documents directly contain Pokémon Gold and Silver with release year 1999." },
+    answer: "Pokémon Gold and Silver was released in 1999 for the Game Boy Color, published by Nintendo.",
+    usesWeb: false
+  },
+  "mario 3d": {
+    query: "first 3D platformer Mario",
+    dbResults: [
+      "Super Mario 64 (Nintendo 64, 1996) - Platformer",
+      "Super Mario World (SNES, 1990) - Platformer"
+    ],
+    evalResult: { useful: true, desc: "Super Mario 64 (1996) is identified as the earliest 3D Mario game in the database." },
+    answer: "Super Mario 64, released in 1996 for the Nintendo 64, was the first 3D platformer Mario game.",
+    usesWeb: false
+  },
+  "mortal kombat": {
+    query: "Mortal Kombat X PlayStation 5",
+    dbResults: [
+      "Super Smash Bros. Melee (GameCube, 2001) - Fighting",
+      "Halo Infinite (Xbox Series X|S, 2021) - FPS"
+    ],
+    evalResult: { useful: false, desc: "No Mortal Kombat games found in the database. Results are not relevant to the query." },
+    webResults: ["Mortal Kombat X was released in 2015 for PS4, Xbox One, and PC. It was never released for PlayStation 5."],
+    answer: "Mortal Kombat X was not released for PlayStation 5. It launched in 2015 for PS4, Xbox One, and PC.",
+    usesWeb: true
+  }
+};
+
+function getScenario(query) {
+  const q = query.toLowerCase();
+  if (q.includes("pokemon") || q.includes("pokémon") || q.includes("gold")) return simScenarios["pokemon"];
+  if (q.includes("mario") && (q.includes("3d") || q.includes("first"))) return simScenarios["mario 3d"];
+  if (q.includes("mortal") || q.includes("kombat")) return simScenarios["mortal kombat"];
+  // Default: show a generic useful scenario
+  return {
+    query: query,
+    dbResults: ["Result 1: Closest match from ChromaDB", "Result 2: Second closest match"],
+    evalResult: { useful: true, desc: "The retrieved documents appear relevant to the query." },
+    answer: "Based on the vector database results, the agent provides an informed answer.",
+    usesWeb: false
+  };
+}
+
+async function runSimulation() {
+  const query = document.getElementById('simQuery').value.trim();
+  if (!query) return;
+  const log = document.getElementById('simLog');
+  log.style.display = 'block';
+  log.innerHTML = '';
+  const btn = document.getElementById('simBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+
+  const scenario = getScenario(query);
+  const steps = [
+    { icon: '📥', text: `<b>User Query:</b> "${query}"`, delay: 400 },
+    { icon: '⚙️', text: '<span class="dim">Agent starts → StateMachine: EntryPoint → message_prep → llm_processor</span>', delay: 600 },
+    { icon: '🤖', text: '<span class="dim">LLM decides to call tool:</span> <b>retrieve_game</b>', delay: 500 },
+    { icon: '🔍', text: `<b>ChromaDB Query:</b> Searching embeddings for "${scenario.query}"...`, delay: 800 },
+    ...scenario.dbResults.map(r => ({ icon: '📄', text: `<span class="dim">Result:</span> ${r}`, delay: 300 })),
+    { icon: '🤖', text: '<span class="dim">LLM decides to call tool:</span> <b>evaluate_retrieval</b>', delay: 500 },
+    { icon: '⚖️', text: `<b>Evaluation:</b> useful=${scenario.evalResult.useful} — ${scenario.evalResult.desc}`, delay: 700 },
+  ];
+
+  if (scenario.usesWeb) {
+    steps.push({ icon: '🤖', text: '<span class="dim">Documents not useful → LLM calls:</span> <b>game_web_search</b>', delay: 500 });
+    steps.push({ icon: '🌐', text: `<b>Tavily Search:</b> ${scenario.webResults[0]}`, delay: 900 });
+  } else {
+    steps.push({ icon: '✅', text: '<span class="dim">Documents are useful → LLM generates final answer directly</span>', delay: 400 });
+  }
+  steps.push({ icon: '💬', text: `<b>Final Answer:</b> ${scenario.answer}`, delay: 500 });
+  steps.push({ icon: '🏁', text: '<span class="dim">StateMachine → Termination. Run complete.</span>', delay: 300 });
+
+  let stepNum = 1;
+  for (const s of steps) {
+    await new Promise(r => setTimeout(r, s.delay));
+    log.innerHTML += `<div class="log-entry"><span class="log-step">${stepNum}.</span><span class="log-icon">${s.icon}</span><span class="log-text">${s.text}</span></div>`;
+    log.scrollTop = log.scrollHeight;
+    stepNum++;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Simulate';
+}
+</script>
+</body>
+</html>

@@ -7,15 +7,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0f1117;
-    --card: #1a1d27;
-    --border: #2a2d3a;
-    --accent: #6c63ff;
-    --accent2: #00c9a7;
-    --accent3: #ff6b6b;
-    --accent4: #ffc107;
-    --text: #e4e6eb;
-    --text2: #9ca3af;
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --border: #e2e6ef;
+    --accent: #4f6df5;
+    --accent2: #0db892;
+    --accent3: #f25c5c;
+    --accent4: #f0a93a;
+    --text: #1e2a3a;
+    --text2: #6b7a8d;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-hover: 0 4px 20px rgba(0,0,0,0.1);
+    --radius: 14px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -24,59 +27,75 @@
     color: var(--text);
     min-height: 100vh;
   }
+
+  /* Header */
   .header {
-    background: linear-gradient(135deg, #1a1d27 0%, #252838 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 28px 40px;
+    background: linear-gradient(135deg, #4f6df5 0%, #7b5cf5 50%, #0db892 100%);
+    padding: 36px 40px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
+    box-shadow: 0 4px 24px rgba(79,109,245,0.2);
   }
   .header-icon {
-    width: 48px; height: 48px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 12px;
+    width: 54px; height: 54px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
+    font-size: 28px;
   }
-  .header h1 { font-size: 26px; font-weight: 700; }
-  .header p { color: var(--text2); font-size: 14px; margin-top: 2px; }
+  .header h1 { font-size: 28px; font-weight: 700; color: #fff; }
+  .header p { color: rgba(255,255,255,0.85); font-size: 14px; margin-top: 2px; }
+
   .container { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
 
   /* Stats row */
   .stats-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
+    gap: 18px;
+    margin-bottom: 32px;
   }
   .stat-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: var(--radius);
+    padding: 22px;
     text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
   }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
   .stat-card .num {
-    font-size: 36px;
+    font-size: 38px;
     font-weight: 800;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--accent);
   }
-  .stat-card .label { color: var(--text2); font-size: 13px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card:nth-child(2) .num { color: var(--accent2); }
+  .stat-card:nth-child(3) .num { color: var(--accent4); }
+  .stat-card:nth-child(4) .num { color: var(--accent3); }
+  .stat-card .label {
+    color: var(--text2);
+    font-size: 13px;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
 
   /* Section titles */
   .section-title {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    color: var(--text);
   }
   .section-title .dot {
-    width: 8px; height: 8px; border-radius: 50%;
+    width: 10px; height: 10px; border-radius: 50%;
     background: var(--accent);
   }
 
@@ -85,17 +104,20 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
   }
   .chart-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 24px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
   }
+  .chart-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
   .chart-card h3 {
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 16px;
     color: var(--text2);
   }
@@ -105,9 +127,10 @@
   .workflow-section {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 32px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
   }
   .workflow-pipeline {
     display: flex;
@@ -115,7 +138,7 @@
     justify-content: center;
     gap: 0;
     flex-wrap: wrap;
-    margin-top: 12px;
+    margin-top: 16px;
   }
   .wf-step {
     display: flex;
@@ -129,20 +152,23 @@
     padding: 16px 20px;
     text-align: center;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     min-width: 130px;
-    position: relative;
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.15s;
   }
-  .wf-box.entry { background: linear-gradient(135deg, #1e3a5f, #2563eb); border: 1px solid #3b82f6; }
-  .wf-box.tool { background: linear-gradient(135deg, #1a3d2e, #059669); border: 1px solid #10b981; }
-  .wf-box.eval { background: linear-gradient(135deg, #3d2e1a, #d97706); border: 1px solid #f59e0b; }
-  .wf-box.web { background: linear-gradient(135deg, #3d1a2e, #dc2626); border: 1px solid #ef4444; }
-  .wf-box.end { background: linear-gradient(135deg, #2e1a3d, #7c3aed); border: 1px solid #8b5cf6; }
-  .wf-label { font-size: 11px; color: var(--text2); }
+  .wf-box:hover { transform: scale(1.04); }
+  .wf-box.entry { background: linear-gradient(135deg, #4f6df5, #6b8aff); }
+  .wf-box.tool { background: linear-gradient(135deg, #0db892, #2dd4a8); }
+  .wf-box.eval { background: linear-gradient(135deg, #f0a93a, #f5c040); color: #1e2a3a; }
+  .wf-box.web { background: linear-gradient(135deg, #f25c5c, #ff7b7b); }
+  .wf-box.end { background: linear-gradient(135deg, #7b5cf5, #9b82f7); }
+  .wf-label { font-size: 11px; color: var(--text2); font-weight: 600; }
   .wf-arrow {
     font-size: 22px;
-    color: var(--text2);
-    margin: 0 6px;
+    color: #b0bac9;
+    margin: 0 8px;
     flex-shrink: 0;
   }
   .wf-branch {
@@ -150,105 +176,106 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin: 0 6px;
+    margin: 0 8px;
   }
-  .wf-branch-label {
-    font-size: 11px;
-    color: var(--accent2);
-    font-weight: 600;
-  }
+  .wf-branch-label { font-size: 11px; font-weight: 700; }
+  .wf-branch-label.yes { color: var(--accent2); }
   .wf-branch-label.no { color: var(--accent3); }
 
   /* Game table */
   .table-section {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 24px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
     overflow-x: auto;
+    box-shadow: var(--shadow);
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th {
     text-align: left;
     padding: 12px 16px;
     color: var(--text2);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    background: #fafbfe;
   }
-  td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #1f2230;
-  }
-  tr:hover td { background: rgba(108, 99, 255, 0.05); }
+  td { padding: 12px 16px; border-bottom: 1px solid #f0f2f7; }
+  tr:hover td { background: #f5f7fb; }
   .genre-badge {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 4px 12px;
     border-radius: 20px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.3px;
   }
 
   /* Sim section */
   .sim-section {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius);
     padding: 32px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow);
   }
-  .sim-input-row {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-  }
+  .sim-input-row { display: flex; gap: 12px; margin-top: 16px; }
   .sim-input {
     flex: 1;
-    padding: 12px 16px;
+    padding: 14px 18px;
     background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
     color: var(--text);
     font-size: 14px;
     outline: none;
+    transition: border-color 0.2s;
   }
   .sim-input:focus { border-color: var(--accent); }
   .sim-btn {
-    padding: 12px 24px;
-    background: linear-gradient(135deg, var(--accent), #5548d9);
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--accent), #7b5cf5);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: #fff;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
     cursor: pointer;
-    transition: transform 0.1s;
+    transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 10px rgba(79,109,245,0.3);
   }
-  .sim-btn:hover { transform: translateY(-1px); }
+  .sim-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,109,245,0.4); }
   .sim-btn:active { transform: translateY(0); }
   .sim-log {
     margin-top: 20px;
     background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
     padding: 20px;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
     font-size: 13px;
-    line-height: 1.8;
+    line-height: 1.9;
     min-height: 120px;
     max-height: 340px;
     overflow-y: auto;
     display: none;
   }
-  .log-entry { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
-  .log-step { color: var(--accent); font-weight: 600; min-width: 24px; }
+  .log-entry { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .log-step {
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 26px;
+    background: #eef1ff;
+    border-radius: 6px;
+    text-align: center;
+    padding: 1px 4px;
+    font-size: 12px;
+  }
   .log-icon { font-size: 14px; min-width: 20px; text-align: center; }
   .log-text { color: var(--text); }
   .log-text.dim { color: var(--text2); }
@@ -257,11 +284,18 @@
 
   .footer {
     text-align: center;
-    padding: 20px;
+    padding: 24px;
     color: var(--text2);
     font-size: 12px;
-    border-top: 1px solid var(--border);
-    margin-top: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 768px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
+    .workflow-pipeline { flex-direction: column; gap: 8px; }
+    .wf-arrow { transform: rotate(90deg); margin: 0; }
   }
 </style>
 </head>
@@ -339,7 +373,7 @@
       <div class="wf-arrow">→</div>
       <div class="wf-branch">
         <div>
-          <div class="wf-branch-label">✓ Useful</div>
+          <div class="wf-branch-label yes">✓ Useful</div>
           <div class="wf-arrow" style="margin:0">↘</div>
         </div>
         <div>
@@ -369,7 +403,7 @@
   <!-- Retrieval Simulation -->
   <div class="section-title"><span class="dot" style="background:var(--accent4)"></span> Retrieval Process Simulator</div>
   <div class="sim-section">
-    <p style="color:var(--text2);font-size:14px;margin-bottom:4px;">Simulate how the agent processes a query through the RAG pipeline.</p>
+    <p style="color:var(--text2);font-size:14px;">Simulate how the agent processes a query through the RAG pipeline.</p>
     <div class="sim-input-row">
       <input class="sim-input" id="simQuery" placeholder="e.g. When was Pokémon Gold and Silver released?" value="When was Pokémon Gold and Silver released?" />
       <button class="sim-btn" id="simBtn" onclick="runSimulation()">▶ Simulate</button>
@@ -413,20 +447,15 @@ const games = [
 ];
 
 const genreColors = {
-  "Racing": "#6c63ff", "Action-adventure": "#ff6b6b", "Role-playing": "#00c9a7",
-  "Platformer": "#ffc107", "Fighting": "#ff9ff3", "Sports": "#54a0ff",
-  "Party": "#f368e0", "Sandbox, Survival": "#10ac84", "FPS": "#ee5a24"
+  "Racing": "#4f6df5", "Action-adventure": "#f25c5c", "Role-playing": "#0db892",
+  "Platformer": "#f0a93a", "Fighting": "#d35db1", "Sports": "#4da6ff",
+  "Party": "#e060c0", "Sandbox, Survival": "#1aab8a", "FPS": "#e84118"
 };
 
 // ─── CHARTS ───
-const chartDefaults = {
-  responsive: true, maintainAspectRatio: false,
-  plugins: { legend: { labels: { color: '#9ca3af', font: { size: 12 } } } },
-  scales: {
-    x: { ticks: { color: '#9ca3af' }, grid: { color: '#1f2230' } },
-    y: { ticks: { color: '#9ca3af' }, grid: { color: '#1f2230' } }
-  }
-};
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+const gridColor = '#e8ecf3';
+const tickColor = '#8a96a8';
 
 // Genre chart
 const genreCounts = {};
@@ -436,11 +465,11 @@ new Chart(document.getElementById('genreChart'), {
   data: {
     labels: Object.keys(genreCounts),
     datasets: [{ data: Object.values(genreCounts),
-      backgroundColor: Object.keys(genreCounts).map(g => genreColors[g] || '#555'),
-      borderWidth: 0 }]
+      backgroundColor: Object.keys(genreCounts).map(g => genreColors[g] || '#888'),
+      borderWidth: 3, borderColor: '#ffffff' }]
   },
   options: { responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 11 }, padding: 10 } } } }
+    plugins: { legend: { position: 'right', labels: { color: tickColor, font: { size: 11, weight: '600' }, padding: 10, usePointStyle: true, pointStyleWidth: 10 } } } }
 });
 
 // Platform family chart
@@ -449,7 +478,7 @@ games.forEach(g => {
   let fam = 'Other';
   if (g.platform.includes('PlayStation')) fam = 'PlayStation';
   else if (g.platform.includes('Xbox') || g.platform.includes('Kinect')) fam = 'Xbox';
-  else if (['SNES','Nintendo 64','GameCube','Wii','Nintendo Switch','Game Boy Color','Game Boy Advance'].includes(g.platform)) fam = 'Nintendo';
+  else fam = 'Nintendo';
   families[fam] = (families[fam] || 0) + 1;
 });
 new Chart(document.getElementById('platformChart'), {
@@ -457,10 +486,10 @@ new Chart(document.getElementById('platformChart'), {
   data: {
     labels: Object.keys(families),
     datasets: [{ data: Object.values(families),
-      backgroundColor: ['#6c63ff','#ff6b6b','#00c9a7','#ffc107'], borderWidth: 0 }]
+      backgroundColor: ['#4f6df5','#f25c5c','#0db892'], borderWidth: 3, borderColor: '#ffffff' }]
   },
   options: { responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 11 }, padding: 10 } } } }
+    plugins: { legend: { position: 'right', labels: { color: tickColor, font: { size: 11, weight: '600' }, padding: 10, usePointStyle: true, pointStyleWidth: 10 } } } }
 });
 
 // Year chart
@@ -472,13 +501,18 @@ new Chart(document.getElementById('yearChart'), {
   data: {
     labels: sortedYears,
     datasets: [{ label: 'Games', data: sortedYears.map(y => yearData[y]),
-      backgroundColor: '#6c63ff', borderRadius: 6, barThickness: 24 }]
+      backgroundColor: sortedYears.map((_, i) => {
+        const colors = ['#4f6df5','#6b8aff','#7b5cf5','#9b82f7','#0db892','#2dd4a8','#4f6df5','#6b8aff','#7b5cf5','#9b82f7','#0db892','#2dd4a8','#4f6df5','#f0a93a'];
+        return colors[i % colors.length];
+      }),
+      borderRadius: 8, barThickness: 26 }]
   },
-  options: { ...chartDefaults,
+  options: {
+    responsive: true, maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-      x: { ticks: { color: '#9ca3af', maxRotation: 45 }, grid: { display: false } },
-      y: { ticks: { color: '#9ca3af', stepSize: 1 }, grid: { color: '#1f2230' }, beginAtZero: true }
+      x: { ticks: { color: tickColor, maxRotation: 45 }, grid: { display: false } },
+      y: { ticks: { color: tickColor, stepSize: 1 }, grid: { color: gridColor }, beginAtZero: true }
     }
   }
 });
@@ -492,14 +526,15 @@ new Chart(document.getElementById('publisherChart'), {
   data: {
     labels: pubSorted.map(p => p[0]),
     datasets: [{ label: 'Games', data: pubSorted.map(p => p[1]),
-      backgroundColor: ['#00c9a7','#6c63ff','#6c63ff','#ff6b6b','#ffc107','#54a0ff','#f368e0'],
-      borderRadius: 6, barThickness: 22 }]
+      backgroundColor: ['#0db892','#4f6df5','#7b5cf5','#f0a93a','#f25c5c','#4da6ff','#e060c0'],
+      borderRadius: 8, barThickness: 22 }]
   },
-  options: { ...chartDefaults, indexAxis: 'y',
+  options: {
+    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
     plugins: { legend: { display: false } },
     scales: {
-      x: { ticks: { color: '#9ca3af', stepSize: 1 }, grid: { color: '#1f2230' }, beginAtZero: true },
-      y: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { display: false } }
+      x: { ticks: { color: tickColor, stepSize: 1 }, grid: { color: gridColor }, beginAtZero: true },
+      y: { ticks: { color: tickColor, font: { size: 11 } }, grid: { display: false } }
     }
   }
 });
@@ -507,13 +542,13 @@ new Chart(document.getElementById('publisherChart'), {
 // ─── GAME TABLE ───
 const tbody = document.getElementById('gameTableBody');
 games.forEach((g, i) => {
-  const color = genreColors[g.genre] || '#555';
+  const color = genreColors[g.genre] || '#888';
   tbody.innerHTML += `<tr>
-    <td style="color:var(--text2)">${i+1}</td>
-    <td style="font-weight:600">${g.name}</td>
+    <td style="color:var(--text2);font-weight:600">${i+1}</td>
+    <td style="font-weight:700">${g.name}</td>
     <td>${g.platform}</td>
-    <td>${g.year}</td>
-    <td><span class="genre-badge" style="background:${color}22;color:${color}">${g.genre}</span></td>
+    <td style="font-weight:600">${g.year}</td>
+    <td><span class="genre-badge" style="background:${color}15;color:${color}">${g.genre}</span></td>
     <td style="color:var(--text2)">${g.publisher}</td>
   </tr>`;
 });
@@ -558,7 +593,6 @@ function getScenario(query) {
   if (q.includes("pokemon") || q.includes("pokémon") || q.includes("gold")) return simScenarios["pokemon"];
   if (q.includes("mario") && (q.includes("3d") || q.includes("first"))) return simScenarios["mario 3d"];
   if (q.includes("mortal") || q.includes("kombat")) return simScenarios["mortal kombat"];
-  // Default: show a generic useful scenario
   return {
     query: query,
     dbResults: ["Result 1: Closest match from ChromaDB", "Result 2: Second closest match"],
@@ -601,7 +635,7 @@ async function runSimulation() {
   let stepNum = 1;
   for (const s of steps) {
     await new Promise(r => setTimeout(r, s.delay));
-    log.innerHTML += `<div class="log-entry"><span class="log-step">${stepNum}.</span><span class="log-icon">${s.icon}</span><span class="log-text">${s.text}</span></div>`;
+    log.innerHTML += `<div class="log-entry"><span class="log-step">${stepNum}</span><span class="log-icon">${s.icon}</span><span class="log-text">${s.text}</span></div>`;
     log.scrollTop = log.scrollHeight;
     stepNum++;
   }
